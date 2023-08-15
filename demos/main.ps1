@@ -1,6 +1,15 @@
+# Import the dev module
+Import-Module C:\Github\jpomfret\dbatools\dbatools.psd1 -Force
+
+# Connect test
+Connect-DbaInstance -SqlInstance sql2017, sql2019
+
 # smo defaults
 Set-DbatoolsConfig -FullName sql.connection.encrypt -Value optional
 Set-DbatoolsConfig -FullName sql.connection.trustcert -Value $true
+
+# Connect test
+Connect-DbaInstance -SqlInstance sql2017, sql2019
 
 # gets
 
@@ -89,6 +98,12 @@ Add-DbaReplArticle @article
 # view articles
 Get-DbaReplArticle -SqlInstance sql2017
 
+# and view publications
+Get-DbaReplPublication -SqlInstance sql2017
+
+# and view articles from publications - magic of objects
+(Get-DbaReplPublication -SqlInstance sql2017 -Name snappy).Articles
+
 # add subscriptions
 $sub = @{
     SqlInstance           = 'sql2017'
@@ -119,6 +134,12 @@ $sub = @{
     Type                  = 'Push'
 }
 New-DbaReplSubscription @sub
+
+# view subscriptions
+Get-DbaReplSubscription -SqlInstance sql2017
+
+#View publications again
+Get-DbaReplPublication -SqlInstance sql2017
 
 # start snapshot agent
 Get-DbaAgentJob -SqlInstance sql2017 -Category repl-snapshot | Start-DbaAgentJob
@@ -208,12 +229,15 @@ Remove-DbaReplPublication @pub
 Disable-DbaReplPublishing -SqlInstance sql2017 -force
 
 <#
-WARNING: [12:32:22][Disable-DbaReplPublishing] Unable to disable replication publishing | Cannot drop server 'SQL2017'
-as Distribution Publisher because there are databases enabled for replication on that server.
+Are you sure you want to perform this action?
+Performing the operation "Disabling and removing publishing on sql2017" on target "sql2017".
+[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"): y
+WARNING: [15:20:26][Disable-DbaReplPublishing] Unable to disable replication publishing | Cannot drop server 'SQL2017' as Distribution Publisher because there are databases enabled for replication on that server.
 Changed database context to 'distribution'.
 #>
 
 # disable distribution
 Disable-DbaReplDistributor -SqlInstance  sql2017
 
+# check the status
 Get-DbaReplServer -SqlInstance sql2017
