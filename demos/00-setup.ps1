@@ -1,6 +1,9 @@
 # import the module 
 Import-Module C:\Github\jpomfret\dbatools\dbatools.psd1 -Force
 
+Write-Output 'starting'
+
+
 # smo defaults
 Set-DbatoolsConfig -FullName sql.connection.encrypt -Value optional
 Set-DbatoolsConfig -FullName sql.connection.trustcert -Value $true
@@ -72,6 +75,7 @@ $pub = @{
     SqlInstance = 'sql2017'
     Database    = 'AdventureWorksLT2017'
     Name        = 'TestPub'
+    Confirm     = $false
 }
 Remove-DbaReplPublication @pub
 
@@ -79,6 +83,7 @@ $pub = @{
     SqlInstance = 'sql2017'
     Database    = 'AdventureWorksLT2017'
     Name        = 'Snappy'
+    Confirm     = $false
 }
 Remove-DbaReplPublication @pub
 
@@ -86,6 +91,7 @@ $pub = @{
     SqlInstance = 'sql2017'
     Database    = 'AdventureWorksLT2017'
     Name        = 'Mergey'
+    Confirm     = $false
 }
 Remove-DbaReplPublication @pub
 
@@ -96,9 +102,9 @@ Disable-DbaReplPublishing -SqlInstance sql2017 -force
 # disable distribution
 Disable-DbaReplDistributor -SqlInstance  sql2017
 
-
 # remove databases on SQL2019
-Get-DbaDatabase -SqlInstance sql2019 -ExcludeSystem -ExcludeDatabase ReportServer, ReportServerTempDB | Remove-DbaDatabase -Confirm:$false 
+Get-DbaDatabase -SqlInstance sql2019 -ExcludeSystem -ExcludeDatabase ReportServer, ReportServerTempDB | 
+Remove-DbaDatabase -Confirm:$false 
 
 # run the tests
 Invoke-Pester .\demos\tests\* -Output Detailed

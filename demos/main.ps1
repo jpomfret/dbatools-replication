@@ -66,6 +66,10 @@ New-DbaReplPublication @pub
 # view publications
 Get-DbaReplPublication -SqlInstance sql2017
 
+$testPub = Get-DbaReplPublication -SqlInstance sql2017 -Name testPub
+$testPub | Get-Member
+$testPub | Format-List * 
+
 # add an article to each publication
 $article = @{
     SqlInstance = 'sql2017'
@@ -173,57 +177,68 @@ $sub = @{
 Remove-DbaReplSubscription @sub
 
 # remove an article
-$article = @{
-    SqlInstance = 'sql2017'
-    Database    = 'AdventureWorksLT2017'
-    Publication = 'testpub'
-    Schema      = 'salesLT'
-    Name        = 'customer'
-}
-Remove-DbaReplArticle @article
+## we could do it the same way...
+# but don't run this... 
+    $article = @{
+        SqlInstance = 'sql2017'
+        Database    = 'AdventureWorksLT2017'
+        Publication = 'testpub'
+        Schema      = 'salesLT'
+        Name        = 'customer'
+    }
+    Remove-DbaReplArticle @article
 
-# remove an article
-$article = @{
-    SqlInstance = 'sql2017'
-    Database    = 'AdventureWorksLT2017'
-    Publication = 'Mergey'
-    Schema      = 'salesLT'
-    Name        = 'product'
-}
-Remove-DbaReplArticle @article
+    # remove an article
+    $article = @{
+        SqlInstance = 'sql2017'
+        Database    = 'AdventureWorksLT2017'
+        Publication = 'Mergey'
+        Schema      = 'salesLT'
+        Name        = 'product'
+    }
+    Remove-DbaReplArticle @article
 
-# remove an article
-$article = @{
-    SqlInstance = 'sql2017'
-    Database    = 'AdventureWorksLT2017'
-    Publication = 'snappy'
-    Schema      = 'salesLT'
-    Name        = 'address'
-}
-Remove-DbaReplArticle @article
+    # remove an article
+    $article = @{
+        SqlInstance = 'sql2017'
+        Database    = 'AdventureWorksLT2017'
+        Publication = 'snappy'
+        Schema      = 'salesLT'
+        Name        = 'address'
+    }
+    Remove-DbaReplArticle @article
+
+# We can also use piping 
+# using the -WhatIf parameter
+Get-DbaReplArticle -SqlInstance sql2017 | Remove-DbaReplArticle -WhatIf
+
+# and run it for real
+Get-DbaReplArticle -SqlInstance sql2017 | Remove-DbaReplArticle
 
 ## remove publications
-$pub = @{
-    SqlInstance = 'sql2017'
-    Database    = 'AdventureWorksLT2017'
-    Name        = 'TestPub'
-}
-Remove-DbaReplPublication @pub
+    $pub = @{
+        SqlInstance = 'sql2017'
+        Database    = 'AdventureWorksLT2017'
+        Name        = 'TestPub'
+    }
+    Remove-DbaReplPublication @pub
 
-$pub = @{
-    SqlInstance = 'sql2017'
-    Database    = 'AdventureWorksLT2017'
-    Name        = 'Snappy'
-}
-Remove-DbaReplPublication @pub
+    $pub = @{
+        SqlInstance = 'sql2017'
+        Database    = 'AdventureWorksLT2017'
+        Name        = 'Snappy'
+    }
+    Remove-DbaReplPublication @pub
 
-$pub = @{
-    SqlInstance = 'sql2017'
-    Database    = 'AdventureWorksLT2017'
-    Name        = 'Mergey'
-}
-Remove-DbaReplPublication @pub
+    $pub = @{
+        SqlInstance = 'sql2017'
+        Database    = 'AdventureWorksLT2017'
+        Name        = 'Mergey'
+    }
+    Remove-DbaReplPublication @pub
 
+# remove all the publications with piping
+Get-DbaReplPublication -SqlInstance sql2017 | Remove-DbaReplPublication 
 
 # disable publishing 
 Disable-DbaReplPublishing -SqlInstance sql2017 -force
