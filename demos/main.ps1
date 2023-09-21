@@ -1,5 +1,24 @@
 # Import the dev module
-Import-Module C:\Github\jpomfret\dbatools\dbatools.psd1 -Force
+#Import-Module C:\Github\jpomfret\dbatools\dbatools.psd1 -Force
+Import-Module C:\GitHub\DMM-GitHub\dbatools\dbatools.psd1 -Force
+
+##############################
+# save the password for ease
+##############################
+
+$securePassword = ('dbatools.IO' | ConvertTo-SecureString -AsPlainText -Force)
+$credential = New-Object System.Management.Automation.PSCredential('sqladmin', $securePassword)
+
+$PSDefaultParameterValues = @{
+    "*:SqlCredential"            = $credential
+    "*:DestinationCredential"    = $credential
+    "*:DestinationSqlCredential" = $credential
+    "*:SourceSqlCredential"      = $credential
+    "*:PublisherSqlCredential"   = $credential
+    "*:SubscriberSqlCredential"   = $credential
+}
+##############################
+
 
 # Connect test
 Connect-DbaInstance -SqlInstance sql2017, sql2019
@@ -68,7 +87,7 @@ Get-DbaReplPublication -SqlInstance sql2017
 
 $testPub = Get-DbaReplPublication -SqlInstance sql2017 -Name testPub
 $testPub | Get-Member
-$testPub | Format-List * 
+$testPub | Format-List *
 
 # add an article to each publication
 $article = @{
@@ -149,6 +168,7 @@ Get-DbaReplPublication -SqlInstance sql2017
 Get-DbaAgentJob -SqlInstance sql2017 -Category repl-snapshot | Start-DbaAgentJob
 
 # remove subscriptions
+#TODO: Why didn't this prompt for confirm?
 $sub = @{
     SqlInstance           = 'sql2017'
     Database              = 'AdventureWorksLT2017'
@@ -178,7 +198,7 @@ Remove-DbaReplSubscription @sub
 
 # remove an article
 ## we could do it the same way...
-# but don't run this... 
+# but don't run this...
     $article = @{
         SqlInstance = 'sql2017'
         Database    = 'AdventureWorksLT2017'
@@ -208,7 +228,7 @@ Remove-DbaReplSubscription @sub
     }
     Remove-DbaReplArticle @article
 
-# We can also use piping 
+# We can also use piping
 # using the -WhatIf parameter
 Get-DbaReplArticle -SqlInstance sql2017 | Remove-DbaReplArticle -WhatIf
 
@@ -238,9 +258,9 @@ Get-DbaReplArticle -SqlInstance sql2017 | Remove-DbaReplArticle
     Remove-DbaReplPublication @pub
 
 # remove all the publications with piping
-Get-DbaReplPublication -SqlInstance sql2017 | Remove-DbaReplPublication 
+Get-DbaReplPublication -SqlInstance sql2017 | Remove-DbaReplPublication
 
-# disable publishing 
+# disable publishing
 Disable-DbaReplPublishing -SqlInstance sql2017 -force
 
 <#

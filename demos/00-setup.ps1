@@ -1,5 +1,6 @@
 # import the module 
-Import-Module C:\Github\jpomfret\dbatools\dbatools.psd1 -Force
+#Import-Module C:\Github\jpomfret\dbatools\dbatools.psd1 -Force
+Import-Module C:\GitHub\DMM-GitHub\dbatools\dbatools.psd1 -Force
 
 Write-Output 'starting'
 
@@ -107,7 +108,7 @@ Get-DbaDatabase -SqlInstance sql2019 -ExcludeSystem -ExcludeDatabase ReportServe
 Remove-DbaDatabase -Confirm:$false 
 
 # run the tests
-Invoke-Pester .\demos\tests\* -Output Detailed
+Invoke-Pester .\demos\tests\demo.tests.ps1 -Output Detailed
 
 # reset config
 # smo defaults

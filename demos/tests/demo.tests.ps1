@@ -1,12 +1,14 @@
 BeforeAll {
-    Import-Module C:\Github\jpomfret\dbatools\dbatools.psd1 -Force
+    #Import-Module C:\Github\jpomfret\dbatools\dbatools.psd1 -Force
+    Import-Module C:\GitHub\DMM-GitHub\dbatools\dbatools.psd1 -Force
+
 
     # smo defaults
     Set-DbatoolsConfig -FullName sql.connection.encrypt -Value optional
     Set-DbatoolsConfig -FullName sql.connection.trustcert -Value $true
 }
 
-Describe "SQL is ready" {
+Describe "SQL is ready"  {
     It "Services are running" {
         (Get-Service MSSQLSERVER, SQLSERVERAGENT -ComputerName sql2017,sql2019,sql2016).foreach{
             $psitem.Status | Should -Be 'Running'
@@ -14,7 +16,7 @@ Describe "SQL is ready" {
     }
 }
 
-Describe "Environment ready for demos" {
+Describe "Environment ready for demos" -Tag docker{
     Context "Publishing\Distribution" {
         BeforeAll {
             $dist = Get-DbaReplDistributor -SqlInstance SQL2017
