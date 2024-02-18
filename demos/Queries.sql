@@ -1,11 +1,11 @@
--- sql2019
+-- sql2
 
--- check objects exist on sql2019
+-- check objects exist on sql2
 SELECT *
-FROM [AdventureWorksLT2017].[SalesLT].[customer]
+FROM [AdventureWorksLT2022].[SalesLT].[customer]
 
 SELECT *
-FROM [AdventureWorksLT2017Merge].[dbo].[product]
+FROM [AdventureWorksLT2022Merge].[dbo].[product]
 
 SELECT * 
-FROM [AdventureWorksLT2017Snap].[SalesLT].[address]
+FROM [AdventureWorksLT2022Snap].[SalesLT].[address]
