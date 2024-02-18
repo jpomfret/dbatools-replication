@@ -6,7 +6,7 @@ Import-Module dbatools
 Connect-DbaInstance -SqlInstance sql1, sql2
 
 # smo defaults
-Set-DbatoolsConfig -FullName sql.connection.encrypt -Value optional
+Set-DbatoolsConfig -FullName sql.connection.encrypt -Value $false
 Set-DbatoolsConfig -FullName sql.connection.trustcert -Value $true
 
 # Connect test
@@ -102,6 +102,10 @@ Add-DbaReplArticle @article
 
 # view articles
 Get-DbaReplArticle -SqlInstance sql1
+
+# we can't see the filter - but there are more properties available
+Get-DbaReplArticle -SqlInstance sql1 -Publication testPub | 
+Select-Object SqlInstance, DatabaseName, PublicationName, Name, SourceObjectOwner, SourceObjectName, FilterClause
 
 # and view publications
 Get-DbaReplPublication -SqlInstance sql1
@@ -257,7 +261,7 @@ Changed database context to 'distribution'.
 #>
 
 # disable distribution
-Disable-DbaReplDistributor -SqlInstance  sql1
+Disable-DbaReplDistributor -SqlInstance sql1
 
 # check the status
 Get-DbaReplServer -SqlInstance sql1

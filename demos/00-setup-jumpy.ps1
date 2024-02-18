@@ -7,6 +7,7 @@ $install = @{
     Credential      = $cred
     AdminAccount    = 'sqlbits2024\sqladmin'
     Verbose         = $true
+    Confirm         = $false
 }
 Install-DbaInstance @install
 
@@ -18,6 +19,8 @@ $install = @{
     Credential      = $cred
     AdminAccount    = 'sqlbits2024\sqladmin'
     Verbose         = $true
+    Confirm         = $false
+
 }
 Install-DbaInstance @install
 
@@ -32,7 +35,7 @@ Set-DbatoolsConfig -FullName sql.connection.encrypt -Value $false -PassThru | Re
 Connect-DbaInstance -SqlInstance sql1,sql2
 
 # also need a database
-Restore-DbaDatabase -SqlInstance sql1 -Path \\jumpy\InstallationMedia\backups\AdventureWorks2022.bak
+Restore-DbaDatabase -SqlInstance sql1 -Path \\jumpy\InstallationMedia\backups\AdventureWorksLT2022.bak
 
 Get-DbaDatabase -SqlInstance sql1
 
