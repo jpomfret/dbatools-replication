@@ -1,6 +1,6 @@
 # Import the dev module
 #Import-Module C:\Github\jpomfret\dbatools\dbatools.psd1 -Force
-Import-Module C:\GitHub\DMM-GitHub\dbatools\dbatools.psd1 -Force
+Import-Module dbatools
 
 ##############################
 # save the password for ease
