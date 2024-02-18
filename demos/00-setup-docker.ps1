@@ -21,7 +21,7 @@ docker exec mssql1 mkdir /shared/data /shared/repldata
 ##############################
 
 # smo defaults
-Set-DbatoolsConfig -FullName sql.connection.encrypt -Value optional
+Set-DbatoolsConfig -FullName sql.connection.encrypt -Value $false
 Set-DbatoolsConfig -FullName sql.connection.trustcert -Value $true
 
 ##############################
