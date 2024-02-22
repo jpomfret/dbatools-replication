@@ -1,4 +1,3 @@
-$cred = Get-Credential sqladmin # needed for remote install
 $install = @{
     SqlInstance     = 'sql1','sql2'
     Version         = '2022'
