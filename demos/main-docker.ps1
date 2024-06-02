@@ -23,7 +23,7 @@ $PSDefaultParameterValues = @{
 Connect-DbaInstance -SqlInstance mssql1, mssql2
 
 # smo defaults
-Set-DbatoolsConfig -FullName sql.connection.encrypt -Value optional
+Set-DbatoolsConfig -FullName sql.connection.encrypt -Value $false
 Set-DbatoolsConfig -FullName sql.connection.trustcert -Value $true
 
 # Connect test
@@ -57,7 +57,7 @@ Get-DbaReplDistributor -SqlInstance mssql1
 # add a transactional publication
 $pub = @{
     SqlInstance = 'mssql1'
-    Database    = 'AdventureWorksLT2017'
+    Database    = 'Northwind'
     Name        = 'testPub'
     Type        = 'Transactional'
 }
@@ -66,7 +66,7 @@ New-DbaReplPublication @pub
 # add a merge publication
 $pub = @{
     SqlInstance = 'mssql1'
-    Database    = 'AdventureWorksLT2017'
+    Database    = 'Northwind'
     Name        = 'mergey'
     Type        = 'Merge'
 }
@@ -75,7 +75,7 @@ New-DbaReplPublication @pub
 # add a snapshot publication
 $pub = @{
     SqlInstance = 'mssql1'
-    Database    = 'AdventureWorksLT2017'
+    Database    = 'Northwind'
     Name        = 'snappy'
     Type        = 'Snapshot'
 }
@@ -87,29 +87,29 @@ Get-DbaReplPublication -SqlInstance mssql1
 # add an article to each publication
 $article = @{
     SqlInstance = 'mssql1'
-    Database    = 'AdventureWorksLT2017'
+    Database    = 'Northwind'
     Publication = 'testpub'
-    Schema      = 'salesLT'
-    Name        = 'customer'
-    Filter      = "lastname = 'gates'"
+    Schema      = 'dbo'
+    Name        = 'Customers'
+    Filter      = "City = 'Dublin'"
 }
 Add-DbaReplArticle @article
 
 $article = @{
     SqlInstance = 'mssql1'
-    Database    = 'AdventureWorksLT2017'
+    Database    = 'Northwind'
     Publication = 'Mergey'
-    Schema      = 'salesLT'
-    Name        = 'product'
+    Schema      = 'dbo'
+    Name        = 'Products'
 }
 Add-DbaReplArticle @article
 
 $article = @{
     SqlInstance = 'mssql1'
-    Database    = 'AdventureWorksLT2017'
+    Database    = 'Northwind'
     Publication = 'snappy'
-    Schema      = 'salesLT'
-    Name        = 'address'
+    Schema      = 'dbo'
+    Name        = 'Suppliers'
 }
 Add-DbaReplArticle @article
 
@@ -120,36 +120,39 @@ Get-DbaReplArticle -SqlInstance mssql1
 Get-DbaReplPublication -SqlInstance mssql1
 
 # and view articles from publications - magic of objects
-(Get-DbaReplPublication -SqlInstance mssql1 -Name snappy).Articles
+(Get-DbaReplPublication -SqlInstance mssql1 -Name testpub).Articles
 
 # add subscriptions
 $sub = @{
-    SqlInstance           = 'mssql1'
-    Database              = 'AdventureWorksLT2017'
-    SubscriberSqlInstance = 'mssql2'
-    SubscriptionDatabase  = 'AdventureWorksLT2017'
-    PublicationName       = 'testpub'
-    Type                  = 'Push'
+    SqlInstance               = 'mssql1'
+    Database                  = 'Northwind'
+    SubscriberSqlInstance     = 'mssql2'
+    SubscriptionDatabase      = 'Northwind'
+    PublicationName           = 'testpub'
+    Type                      = 'Push'
+    SubscriptionSqlCredential = $credential # because we want to use sqlauth in our containers
 }
 New-DbaReplSubscription @sub
 
 $sub = @{
-    SqlInstance           = 'mssql1'
-    Database              = 'AdventureWorksLT2017'
-    SubscriberSqlInstance = 'mssql2'
-    SubscriptionDatabase  = 'AdventureWorksLT2017Merge'
-    PublicationName       = 'Mergey'
-    Type                  = 'Push'
+    SqlInstance               = 'mssql1'
+    Database                  = 'Northwind'
+    SubscriberSqlInstance     = 'mssql2'
+    SubscriptionDatabase      = 'NorthwindMerge'
+    PublicationName           = 'Mergey'
+    Type                      = 'Push'
+    SubscriptionSqlCredential = $credential # because we want to use sqlauth in our containers
 }
 New-DbaReplSubscription @sub
 
 $sub = @{
-    SqlInstance           = 'mssql1'
-    Database              = 'AdventureWorksLT2017'
-    SubscriberSqlInstance = 'mssql2'
-    SubscriptionDatabase  = 'AdventureWorksLT2017Snap'
-    PublicationName       = 'Snappy'
-    Type                  = 'Push'
+    SqlInstance               = 'mssql1'
+    Database                  = 'Northwind'
+    SubscriberSqlInstance     = 'mssql2'
+    SubscriptionDatabase      = 'NorthwindSnap'
+    PublicationName           = 'Snappy'
+    Type                      = 'Push'
+    SubscriptionSqlCredential = $credential # because we want to use sqlauth in our containers
 }
 New-DbaReplSubscription @sub
 
@@ -163,11 +166,10 @@ Get-DbaReplPublication -SqlInstance mssql1
 Get-DbaAgentJob -SqlInstance mssql1 -Category repl-snapshot | Start-DbaAgentJob
 
 # remove subscriptions
-#TODO: Why didn't this prompt for confirm?
 $sub = @{
     SqlInstance           = 'mssql1'
-    Database              = 'AdventureWorksLT2017'
-    SubscriptionDatabase  = 'AdventureWorksLT2017'
+    Database              = 'Northwind'
+    SubscriptionDatabase  = 'Northwind'
     SubscriberSqlInstance = 'mssql2'
     PublicationName       = 'testPub'
 }
@@ -175,29 +177,33 @@ Remove-DbaReplSubscription @sub
 
 $sub = @{
     SqlInstance           = 'mssql1'
-    Database              = 'AdventureWorksLT2017'
-    SubscriptionDatabase  = 'AdventureWorksLT2017Merge'
+    Database              = 'Northwind'
+    SubscriptionDatabase  = 'NorthwindMerge'
     SubscriberSqlInstance = 'mssql2'
     PublicationName       = 'Mergey'
+    Confirm               = $false
 }
 Remove-DbaReplSubscription @sub
 
 $sub = @{
     SqlInstance           = 'mssql1'
-    Database              = 'AdventureWorksLT2017'
-    SubscriptionDatabase  = 'AdventureWorksLT2017Snap'
+    Database              = 'Northwind'
+    SubscriptionDatabase  = 'NorthwindSnap'
     SubscriberSqlInstance = 'mssql2'
     PublicationName       = 'snappy'
+    Confirm               = $false
 }
 Remove-DbaReplSubscription @sub
 
 # remove an article
+## we could do it the same way...
+# but don't run this...
 $article = @{
     SqlInstance = 'mssql1'
-    Database    = 'AdventureWorksLT2017'
+    Database    = 'Northwind'
     Publication = 'testpub'
-    Schema      = 'salesLT'
-    Name        = 'customer'
+    Schema      = 'dbo'
+    Name        = 'Customers'
 }
 Remove-DbaReplArticle @article
 
@@ -205,45 +211,56 @@ Remove-DbaReplArticle @article
 #TODO: can these all be in one command? just a list of name?
 $article = @{
     SqlInstance = 'mssql1'
-    Database    = 'AdventureWorksLT2017'
+    Database    = 'Northwind'
     Publication = 'Mergey'
-    Schema      = 'salesLT'
-    Name        = 'product'
+    Schema      = 'dbo'
+    Name        = 'Products'
 }
 Remove-DbaReplArticle @article
 
 # remove an article
 $article = @{
     SqlInstance = 'mssql1'
-    Database    = 'AdventureWorksLT2017'
+    Database    = 'Northwind'
     Publication = 'snappy'
-    Schema      = 'salesLT'
-    Name        = 'address'
+    Schema      = 'dbo'
+    Name        = 'Suppliers'
 }
 Remove-DbaReplArticle @article
+
+# We can also use piping
+# using the -WhatIf parameter
+Get-DbaReplArticle -SqlInstance mssql1 | Remove-DbaReplArticle -WhatIf
+
+# and run it for real
+Get-DbaReplArticle -SqlInstance mssql1 | Remove-DbaReplArticle
 
 ## remove publications
 $pub = @{
     SqlInstance = 'mssql1'
-    Database    = 'AdventureWorksLT2017'
+    Database    = 'Northwind'
     Name        = 'TestPub'
 }
 Remove-DbaReplPublication @pub
 
 $pub = @{
     SqlInstance = 'mssql1'
-    Database    = 'AdventureWorksLT2017'
+    Database    = 'Northwind'
     Name        = 'Snappy'
+    Confirm     = $false
 }
 Remove-DbaReplPublication @pub
 
 $pub = @{
     SqlInstance = 'mssql1'
-    Database    = 'AdventureWorksLT2017'
+    Database    = 'Northwind'
     Name        = 'Mergey'
+    Confirm     = $false
 }
 Remove-DbaReplPublication @pub
 
+# remove all the publications with piping
+Get-DbaReplPublication -SqlInstance mssql1 | Remove-DbaReplPublication
 
 # disable publishing 
 Disable-DbaReplPublishing -SqlInstance mssql1 -force

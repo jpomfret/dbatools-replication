@@ -48,6 +48,15 @@ Describe "Environment ready for demos" -Tag docker{
         }
     }
 
+    Context "Northwind should have some Dublin data" {
+        BeforeAll {
+            $dubData = Invoke-DbaQuery -SqlInstance mssql1 -Database Northwind -Query "Select Count(*) as DubCount from dbo.Customers where City = 'Dublin'"
+        }
+        It "There should be Dublin customer data" {
+            $dubData.DubCount | Should Be 5
+        }
+    }
+
     Context "There should be no databases on mssql2" {
         BeforeAll {
             $dbs = Get-DbaDatabase -SqlInstance mssql2 -ExcludeSystem -ExcludeDatabase ReportServerTempDB, ReportServer
@@ -56,5 +65,15 @@ Describe "Environment ready for demos" -Tag docker{
             $dbs | Should -BeNullOrEmpty
         }
     }
-    
+    Context "We have the things we need open" {
+        BeforeAll {
+            $procs = Get-Process ZoomIt64,ssms -ErrorAction SilentlyContinue
+        }
+        It "ZoomIt should be running so we can see things" {
+            $procs.ProcessName | Should -Contain 'ZoomIt64'
+        }
+        It "SSMS should be running" {
+            $procs.ProcessName | Should -Contain 'SSMS'
+        }
+    }
 }
