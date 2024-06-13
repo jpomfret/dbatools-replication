@@ -1,10 +1,10 @@
 BeforeAll {
     #Import-Module C:\Github\jpomfret\dbatools\dbatools.psd1 -Force
-    Import-Module C:\GitHub\DMM-GitHub\dbatools\dbatools.psd1 -Force
+    Import-Module dbatools -force
 
 
     # smo defaults
-    Set-DbatoolsConfig -FullName sql.connection.encrypt -Value optional
+    Set-DbatoolsConfig -FullName sql.connection.encrypt -Value $false
     Set-DbatoolsConfig -FullName sql.connection.trustcert -Value $true
 }
 

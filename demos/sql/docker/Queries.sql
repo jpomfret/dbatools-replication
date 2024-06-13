@@ -1,4 +1,4 @@
--- sql2
+-- mssql2
 
 -- check objects exist on sql2
 SELECT *

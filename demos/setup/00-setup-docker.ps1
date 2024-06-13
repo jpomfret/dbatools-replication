@@ -1,4 +1,4 @@
-# import the module 
+# import the module
 #Import-Module C:\Github\jpomfret\dbatools\dbatools.psd1 -Force
 Import-Module dbatools
 
@@ -6,15 +6,21 @@ Import-Module dbatools
 # create docker environment
 ##############################
 # create a shared network
-docker network create localnet
+if (-not (docker network ls | select-string localnet)) {
+    docker network create localnet
+}
 
-# create two docker containers for us 
+# create two docker containers for us
 docker run -p 2500:1433  --volume shared:/shared:z --name mssql1 --hostname mssql1 --network localnet -d dbatools/sqlinstance
 docker run -p 2600:1433 --volume shared:/shared:z --name mssql2 --hostname mssql2 --network localnet -d dbatools/sqlinstance2
 
 # use aliases so we can call them by name
-New-DbaClientAlias -ComputerName localhost -ServerName 'localhost,2500' -Alias mssql1
-New-DbaClientAlias -ComputerName localhost -ServerName 'localhost,2600' -Alias mssql2
+if (-not (Get-DbaClientAlias -ComputerName localhost  | Where-Object {$_.servername -eq 'localhost,2500' -and $_.AliasName -eq 'mssql1' -and $_.Architecture -eq '64-bit' } )) {
+    New-DbaClientAlias -ComputerName localhost -ServerName 'localhost,2500' -Alias mssql1
+    }
+if (-not (Get-DbaClientAlias -ComputerName localhost  | Where-Object {$_.servername -eq 'localhost,2600' -and $_.AliasName -eq 'mssql2' -and $_.Architecture -eq '64-bit' } )) {
+    New-DbaClientAlias -ComputerName localhost -ServerName 'localhost,2600' -Alias mssql2
+}
 
 # create the repl folder
 docker exec mssql1 mkdir /var/opt/mssql/ReplData
@@ -141,16 +147,28 @@ $pub = @{
 }
 Remove-DbaReplPublication @pub
 
+try {
+    # disable publishing
+    if (Get-DbaReplPublisher -SqlInstance mssql1) {
+        Disable-DbaReplPublishing -SqlInstance mssql1 -force
+    }
 
-# disable publishing 
-Disable-DbaReplPublishing -SqlInstance mssql1 -force
-
-# disable distribution
-Disable-DbaReplDistributor -SqlInstance  mssql1
-
+    # disable distribution
+    if((Get-DbaReplDistributor -SqlInstance mssql1).IsDistributor -eq $true) {
+        Disable-DbaReplDistributor -SqlInstance  mssql1
+    }
+} catch {
+    write-warning 'there were warnings...'
+}
 
 # remove databases on mssql2
-Get-DbaDatabase -SqlInstance mssql2 -ExcludeSystem -ExcludeDatabase ReportServer, ReportServerTempDB | Remove-DbaDatabase -Confirm:$false 
+Get-DbaDatabase -SqlInstance mssql2 -ExcludeSystem -ExcludeDatabase ReportServer, ReportServerTempDB | Remove-DbaDatabase -Confirm:$false
+
+# open zoomit
+Invoke-Item C:\ProgramData\chocolatey\bin\ZoomIt.exe
+
+# open SSMS
+Invoke-Item "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Microsoft SQL Server Tools 20\SQL Server Management Studio 20.lnk"
 
 # run the tests
 Invoke-Pester .\demos\tests\demo-docker.tests.ps1

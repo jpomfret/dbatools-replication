@@ -1,4 +1,4 @@
---sql1
+-- mssql1
 
 -- insert a row over on publisher on sql1
 use Northwind 

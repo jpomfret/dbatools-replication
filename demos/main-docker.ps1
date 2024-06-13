@@ -1,5 +1,4 @@
-# Import the dev module
-#Import-Module C:\Github\jpomfret\dbatools\dbatools.psd1 -Force
+# Import the module
 Import-Module dbatools
 
 ##############################
@@ -15,7 +14,7 @@ $PSDefaultParameterValues = @{
     "*:DestinationSqlCredential" = $credential
     "*:SourceSqlCredential"      = $credential
     "*:PublisherSqlCredential"   = $credential
-    "*:SubscriberSqlCredential"   = $credential
+    "*:SubscriberSqlCredential"  = $credential
 }
 ##############################
 
@@ -208,7 +207,6 @@ $article = @{
 Remove-DbaReplArticle @article
 
 # remove an article
-#TODO: can these all be in one command? just a list of name?
 $article = @{
     SqlInstance = 'mssql1'
     Database    = 'Northwind'
@@ -262,7 +260,7 @@ Remove-DbaReplPublication @pub
 # remove all the publications with piping
 Get-DbaReplPublication -SqlInstance mssql1 | Remove-DbaReplPublication
 
-# disable publishing 
+# disable publishing
 Disable-DbaReplPublishing -SqlInstance mssql1 -force
 
 <#
